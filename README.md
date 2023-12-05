@@ -1,4 +1,4 @@
-# RapidUnlike.js 🚀
+# RapidUnlike.js 💔🚀
 
 Unleash the power of rapid unliking on Twitter with RapidUnlike.js! This script automates the process of unliking tweets on your Twitter profile, helping you effortlessly clean up your Liked Tweets section.
 
