@@ -18,7 +18,7 @@ RapidUnlike is a script that unlikes all your liked tweets at an impressive spee
 
 - <u>Efficiency</u>: Unlike ***thousands*** of tweets in minutes.
 - <u>Smart Wait Times</u>: Prevent rate-limiting with smart wait times between unlikes.
-- <u>User-Friendly</u>: Simple execution while providing a preview of the recently unliked tweet, count total, and time taken.
+- <u>User-Friendly</u>: Simple execution while providing a text preview of the unliked tweets, count total, and total time taken.
 
 ## 📜 Instructions
 
