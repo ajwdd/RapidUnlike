@@ -32,6 +32,15 @@ RapidUnlike is a script that unlikes all your liked tweets at an impressive spee
 3. Copy the entirety of `RapidUnlike` and paste into the console then press <kbd>Enter</kbd>.
 
    ```js
+   //┌─────────────────────────────────────────────────────┐
+   //│  ____             _     _ _   _       _ _ _         │
+   //│ |  _ \ __ _ _ __ (_) __| | | | |_ __ | (_) | _____  │
+   //│ | |_) / _` | '_ \| |/ _` | | | | '_ \| | | |/ / _ \ │
+   //│ |  _ < (_| | |_) | | (_| | |_| | | | | | |   <  __/ │
+   //│ |_| \_\__,_| .__/|_|\__,_|\___/|_| |_|_|_|_|\_\___| │
+   //│            |_|   https://github.com/bugsommelier    │
+   //└─────────────────────────────────────────────────────┘
+   
    function fetchLikes() {
      return document.querySelectorAll('[data-testid="unlike"]');
    }
@@ -52,12 +61,9 @@ RapidUnlike is a script that unlikes all your liked tweets at an impressive spee
      let count = 0;
      let errorCount = 0;
    
-     // Adaptive Timing Variables
-     // Initial wait time between unlikes
-     let baseWaitTime = 500;
-     // Increment on error
-     let incrementWait = 150;
-     // Decrement on success
+     // IMPORTANT: Keep these set at 0, barring a severely slow internet connection
+     let baseWaitTime = 0;
+     let incrementWait = 0;
      let decrementWait = 0;
    
      let likeButtons = fetchLikes();
@@ -67,16 +73,15 @@ RapidUnlike is a script that unlikes all your liked tweets at an impressive spee
        for (let i = startIndex; i < likeButtons.length; i++) {
          try {
            // Fetch and log tweet text
-           // Slice fetched unliked tweet to 50 chars
-           let tweetText = fetchTweetText(likeButtons[i]).slice(0, 50);
+           let tweetText = fetchTweetText(likeButtons[i]).slice(0, 150);
            console.log(`Unliking tweet: "${tweetText}"`);
    
            likeButtons[i].click();
-           console.log(`%cUnliked ${++count} tweets`, "color: green;");
+           console.log(`%cUnliked ${++count} tweets`, "color: aqua;");
    
            await wait(baseWaitTime);
    
-           // Adaptive Timing Adjustment
+           // Optional adaptive timing implementation
            if (baseWaitTime > 1000 && errorCount === 0) {
              // Decrease wait time after successful unlike
              baseWaitTime -= decrementWait;
@@ -84,7 +89,8 @@ RapidUnlike is a script that unlikes all your liked tweets at an impressive spee
          } catch (error) {
            console.error(`%cError unliking tweet: ${error}`, "color: red;");
            errorCount++;
-           baseWaitTime += incrementWait; // Increase wait time after error
+           // Increase wait time after error
+           baseWaitTime += incrementWait;
            break;
          }
        }
@@ -106,10 +112,10 @@ RapidUnlike is a script that unlikes all your liked tweets at an impressive spee
      const endTime = performance.now();
      // Convert milliseconds to seconds
      const totalTime = (endTime - startTime) / 1000;
-     console.log(`%cTotal unliked = ${count}`, "color: blue;");
+     console.log(`%cTotal unliked = ${count}`, "color: aquamarine;");
      console.log(
        `%cTotal time taken: ${totalTime.toFixed(2)} seconds`,
-       "color: blue;"
+       "color: aquamarine;"
      );
    }
    

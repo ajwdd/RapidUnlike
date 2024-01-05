@@ -27,12 +27,9 @@ async function unlikeAll() {
   let count = 0;
   let errorCount = 0;
 
-  // Initial wait time between unlikes
-  let baseWaitTime = 100;
-  // Increment on error
-  let incrementWait = 50;
-  // Decrement on success
-  //Keep this set at 0 barring a severely slow internet connection
+  // IMPORTANT: Keep these set at 0, barring a severely slow internet connection
+  let baseWaitTime = 0;
+  let incrementWait = 0;
   let decrementWait = 0;
 
   let likeButtons = fetchLikes();
@@ -42,16 +39,15 @@ async function unlikeAll() {
     for (let i = startIndex; i < likeButtons.length; i++) {
       try {
         // Fetch and log tweet text
-        // Slice fetched unliked tweet to 50 chars
-        let tweetText = fetchTweetText(likeButtons[i]).slice(0, 50);
+        let tweetText = fetchTweetText(likeButtons[i]).slice(0, 150);
         console.log(`Unliking tweet: "${tweetText}"`);
 
         likeButtons[i].click();
-        console.log(`%cUnliked ${++count} tweets`, "color: green;");
+        console.log(`%cUnliked ${++count} tweets`, "color: aqua;");
 
         await wait(baseWaitTime);
 
-        // Adaptive Timing Adjustment
+        // Optional adaptive timing implementation
         if (baseWaitTime > 1000 && errorCount === 0) {
           // Decrease wait time after successful unlike
           baseWaitTime -= decrementWait;
@@ -59,7 +55,8 @@ async function unlikeAll() {
       } catch (error) {
         console.error(`%cError unliking tweet: ${error}`, "color: red;");
         errorCount++;
-        baseWaitTime += incrementWait; // Increase wait time after error
+        // Increase wait time after error
+        baseWaitTime += incrementWait;
         break;
       }
     }
@@ -81,10 +78,10 @@ async function unlikeAll() {
   const endTime = performance.now();
   // Convert milliseconds to seconds
   const totalTime = (endTime - startTime) / 1000;
-  console.log(`%cTotal unliked = ${count}`, "color: blue;");
+  console.log(`%cTotal unliked = ${count}`, "color: aquamarine;");
   console.log(
     `%cTotal time taken: ${totalTime.toFixed(2)} seconds`,
-    "color: blue;"
+    "color: aquamarine;"
   );
 }
 
