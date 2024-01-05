@@ -10,12 +10,15 @@ Or just want to clean up your liked tweets?
 
 RapidUnlike is a script that unlikes all your liked tweets at an impressive speed. It's simple, efficient, and user-friendly.
 
+##  🎥 Demo
+
+![demo](https://gist.github.com/assets/4010514/bb253a4a-2182-4d02-bb25-02aeb4d26bbe)
+
 ## 🔧 Features
 
 - <u>Efficiency</u>: Unlike ***thousands*** of tweets in minutes.
 - <u>Smart Wait Times</u>: Prevent rate-limiting with smart wait times between unlikes.
 - <u>User-Friendly</u>: Simple execution while providing a preview of the recently unliked tweet, count total, and time taken.
-
 
 ## 📜 Instructions
 
@@ -26,7 +29,7 @@ RapidUnlike is a script that unlikes all your liked tweets at an impressive spee
    - Linux, Windows, ChromeOS: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>J</kbd>
    - macOS: <kbd>Cmd</kbd> + <kbd>Option</kbd> + <kbd>J</kbd>
 
-3. Copy the entirety of `RapidUnlike` and paste into the console then press <kbd>Enter</kbd>.
+3. Copy the entirety of `RapidUnlike.js` and paste into the console then press <kbd>Enter</kbd>.
 
    ```js
    function fetchLikes() {
@@ -51,9 +54,9 @@ RapidUnlike is a script that unlikes all your liked tweets at an impressive spee
    
      // Adaptive Timing Variables
      // Initial wait time between unlikes
-     let baseWaitTime = 500;
+     let baseWaitTime = 100;
      // Increment on error
-     let incrementWait = 150;
+     let incrementWait = 50;
      // Decrement on success
      let decrementWait = 0;
    
