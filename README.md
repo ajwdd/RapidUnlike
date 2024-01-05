@@ -1,6 +1,6 @@
 # 🚀 RapidUnlike 💔
 
-![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=flat&logo=javascript)![ ](https://img.shields.io/github/stars/bugsommelier/RapidUnlike.svg?style=flat)![Size](https://img.shields.io/github/repo-size/bugsommelier/RapidUnlike)![License](https://img.shields.io/badge/license-MIT-blue)![IsMaintained](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
+![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=flat&logo=javascript) ![ ](https://img.shields.io/github/stars/bugsommelier/RapidUnlike.svg?style=flat) ![Size](https://img.shields.io/github/repo-size/bugsommelier/RapidUnlike) ![License](https://img.shields.io/badge/license-MIT-blue) ![IsMaintained](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
 
 New year new you? 
 
