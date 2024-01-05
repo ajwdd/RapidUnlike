@@ -1,26 +1,32 @@
-# RapidUnlike.js 💔🚀
+# 🚀 RapidUnlike 💔
 
-Unleash the power of rapid unliking on Twitter with RapidUnlike.js! This script automates the process of unliking tweets on your Twitter profile, helping you effortlessly clean up your Liked Tweets section.
+![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=flat&logo=javascript)![ ](https://img.shields.io/github/stars/bugsommelier/RapidUnlike.svg?style=flat)![Size](https://img.shields.io/github/repo-size/bugsommelier/RapidUnlike)![License](https://img.shields.io/badge/license-MIT-blue)![IsMaintained](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
 
-## Features 🔧
+New year new you? 
 
-- **Efficiency:** Unlike tweets at an impressive speed to save you time.
-- **Smart Wait Times:** Prevent rate-limiting with smart wait times between unlikes.
-- **User-Friendly:** Simple setup and execution with clear instructions.
+Want to start fresh? 
+
+Or just want to clean up your liked tweets? 
+
+RapidUnlike is a script that unlikes all your liked tweets at an impressive speed. It's simple, efficient, and user-friendly.
+
+## 🔧 Features
+
+- <u>Efficiency</u>: Unlike ***thousands*** of tweets in minutes.
+- <u>Smart Wait Times</u>: Prevent rate-limiting with smart wait times between unlikes.
+- <u>User-Friendly</u>: Simple execution while providing a preview of the recently unliked tweet, count total, and time taken.
 
 
-## Instructions 📜
+## 📜 Instructions
 
-1. Open Twitter and log in to your account.
+1. Navigate to your profile's "posts liked" page: https://www.x.com/yourusername/likes.
 
-2. Go to the "Liked Tweets" section on your profile.
+2. Open the browser's console:
 
-3. Open the browser console:
+   - Linux, Windows, ChromeOS: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>J</kbd>
+   - macOS: <kbd>Cmd</kbd> + <kbd>Option</kbd> + <kbd>J</kbd>
 
-   - For Chrome: Right-click on the page, select "Inspect", go to the "Console" tab.
-   - For Firefox: Right-click on the page, select "Inspect Element", go to the "Console" tab.
-
-4. Copy the entire contents of `RapidUnlike.js`.
+3. Copy the entirety of `RapidUnlike` and paste into the console then press <kbd>Enter</kbd>.
 
    ```js
    function fetchLikes() {
@@ -45,11 +51,11 @@ Unleash the power of rapid unliking on Twitter with RapidUnlike.js! This script 
    
      // Adaptive Timing Variables
      // Initial wait time between unlikes
-     let baseWaitTime = 200;
+     let baseWaitTime = 500;
      // Increment on error
      let incrementWait = 150;
      // Decrement on success
-     let decrementWait = 100;
+     let decrementWait = 0;
    
      let likeButtons = fetchLikes();
      let startIndex = 0;
@@ -107,10 +113,8 @@ Unleash the power of rapid unliking on Twitter with RapidUnlike.js! This script 
    unlikeAll();
    ```
 
-5. Paste it into the console and press Enter.
+   **C'est fini!**
 
-6. The script will start unliking tweets **rapidly**.
+   ---
 
-**Note:** Adjust the wait time (in milliseconds) according to your needs. The script automatically stops if it reaches the Twitter/X's rate limit. If you finish early, it's to prevent rate-limiting.
-
-Feel free to customize the instructions based on your preferences or add any additional information.
+**Note:** Adjust the wait time (in milliseconds) according to your internet speed if needed.
