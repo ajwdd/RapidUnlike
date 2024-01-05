@@ -28,9 +28,9 @@ async function unlikeAll() {
   let errorCount = 0;
 
   // Initial wait time between unlikes
-  let baseWaitTime = 500;
+  let baseWaitTime = 100;
   // Increment on error
-  let incrementWait = 150;
+  let incrementWait = 50;
   // Decrement on success
   //Keep this set at 0 barring a severely slow internet connection
   let decrementWait = 0;
