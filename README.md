@@ -29,7 +29,7 @@ RapidUnlike is a script that unlikes all your liked tweets at an impressive spee
    - Linux, Windows, ChromeOS: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>J</kbd>
    - macOS: <kbd>Cmd</kbd> + <kbd>Option</kbd> + <kbd>J</kbd>
 
-3. Copy the entirety of `RapidUnlike.js` and paste into the console then press <kbd>Enter</kbd>.
+3. Copy the entirety of `RapidUnlike` and paste into the console then press <kbd>Enter</kbd>.
 
    ```js
    function fetchLikes() {
@@ -54,9 +54,9 @@ RapidUnlike is a script that unlikes all your liked tweets at an impressive spee
    
      // Adaptive Timing Variables
      // Initial wait time between unlikes
-     let baseWaitTime = 100;
+     let baseWaitTime = 500;
      // Increment on error
-     let incrementWait = 50;
+     let incrementWait = 150;
      // Decrement on success
      let decrementWait = 0;
    
