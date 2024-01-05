@@ -1,3 +1,12 @@
+//┌─────────────────────────────────────────────────────┐
+//│  ____             _     _ _   _       _ _ _         │
+//│ |  _ \ __ _ _ __ (_) __| | | | |_ __ | (_) | _____  │
+//│ | |_) / _` | '_ \| |/ _` | | | | '_ \| | | |/ / _ \ │
+//│ |  _ < (_| | |_) | | (_| | |_| | | | | | |   <  __/ │
+//│ |_| \_\__,_| .__/|_|\__,_|\___/|_| |_|_|_|_|\_\___| │
+//│            |_|   https://github.com/bugsommelier    │
+//└─────────────────────────────────────────────────────┘
+
 function fetchLikes() {
   return document.querySelectorAll('[data-testid="unlike"]');
 }
@@ -18,13 +27,13 @@ async function unlikeAll() {
   let count = 0;
   let errorCount = 0;
 
-  // Adaptive Timing Variables
   // Initial wait time between unlikes
-  let baseWaitTime = 200;
+  let baseWaitTime = 500;
   // Increment on error
   let incrementWait = 150;
   // Decrement on success
-  let decrementWait = 100;
+  //Keep this set at 0 barring a severely slow internet connection
+  let decrementWait = 0;
 
   let likeButtons = fetchLikes();
   let startIndex = 0;
