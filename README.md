@@ -1,6 +1,6 @@
 # 🚀 RapidUnlike 💔
 
-[![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=flat&logo=javascript)](https://en.wikipedia.org/wiki/Brendan_Eich) [![Stars](https://img.shields.io/github/stars/ajwdd/RapidUnlike.svg?style=flat)](https://github.com/ajwdd/RapidUnlike/stargazers) [![Size](https://img.shields.io/github/repo-size/ajwdd/RapidUnlike)](https://github.com/ajwdd/RapidUnlike) [![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](https://unlicense.org) [![IsMaintained](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/ajwdd/RapidUnlike/activity)
+[![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=flat&logo=javascript)](https://en.wikipedia.org/wiki/Brendan_Eich) [![Stars](https://img.shields.io/github/stars/ajwdd/RapidUnlike.svg?style=flat)](https://github.com/ajwdd/RapidUnlike/stargazers) [![Size](https://img.shields.io/github/repo-size/ajwdd/RapidUnlike)](https://github.com/ajwdd/RapidUnlike) [![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](https://unlicense.org) [![IsMaintained](https://img.shields.io/badge/Maintained%3F-yes-blue.svg)](https://github.com/ajwdd/RapidUnlike/activity)
 
 New year new you? 
 
