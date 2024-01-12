@@ -29,7 +29,7 @@ RapidUnlike is a script that unlikes all your liked tweets at an impressive spee
    - Linux, Windows, ChromeOS: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>J</kbd>
    - macOS: <kbd>Cmd</kbd> + <kbd>Option</kbd> + <kbd>J</kbd>
 
-3. Copy the entirety of `RapidUnlike` and paste into the console then press <kbd>Enter</kbd>.
+3. Copy the entirety of `RapidUnlike` and paste into the console then press <kbd>Enter</kbd>
 
    ```js
    //┌─────────────────────────────────────────────────────┐
