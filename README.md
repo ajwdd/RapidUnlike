@@ -18,7 +18,7 @@ RapidUnlike is a script that unlikes all your liked tweets at an impressive spee
 
 - <u>Efficiency</u>: Unlike ***thousands*** of tweets in minutes.
 - <u>Smart Wait Times</u>: Prevent rate-limiting with smart wait times between unlikes.
-- <u>User-Friendly</u>: Simple execution while providing a text preview of the unliked tweets, count total, and total time taken.
+- <u>User-Friendly</u>: Simple execution with UI start and stop, while providing a text preview of the unliked tweets, count total, and total time taken.
 
 ## 📜 Instructions
 
@@ -41,12 +41,23 @@ RapidUnlike is a script that unlikes all your liked tweets at an impressive spee
    //│            |_|   https://github.com/ajwdd           │
    //└─────────────────────────────────────────────────────┘
    
+   // Configuration
+   const MAX_UNLIKES = 2500;
+   const BASE_WAIT_TIME = 100;
+   const INCREMENT_WAIT = 200;
+   const DECREMENT_WAIT = 50;
+   const RETRY_COUNT = 3;
+   const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+   const RATE_LIMIT_MAX_UNLIKES = 50;
+   const PROGRESS_REPORT_INTERVAL = 60 * 1000; // 1 minute
+   
+   // Helper functions
    function fetchLikes() {
      return document.querySelectorAll('[data-testid="unlike"]');
    }
    
    function fetchTweetText(button) {
-     let tweetElement = button
+     const tweetElement = button
        .closest("article")
        .querySelector('[data-testid="tweetText"]');
      return tweetElement ? tweetElement.textContent : "No text found";
@@ -56,74 +67,141 @@ RapidUnlike is a script that unlikes all your liked tweets at an impressive spee
      return new Promise((resolve) => setTimeout(resolve, ms));
    }
    
+   function saveProgress(count) {
+     localStorage.setItem("unlikeCount", count);
+   }
+   
+   function loadProgress() {
+     return localStorage.getItem("unlikeCount") || 0;
+   }
+   
+   // UI elements
+   const startButton = document.createElement("button");
+   startButton.textContent = "Start Unliking";
+   const stopButton = document.createElement("button");
+   stopButton.textContent = "Stop Unliking";
+   stopButton.disabled = true;
+   const progressText = document.createElement("div");
+   const errorText = document.createElement("div");
+   
+   // Create UI container
+   const uiContainer = document.createElement("div");
+   uiContainer.style.position = "fixed";
+   uiContainer.style.top = "10px";
+   uiContainer.style.right = "10px";
+   uiContainer.style.backgroundColor = "#333";
+   uiContainer.style.color = "#fff";
+   uiContainer.style.padding = "10px";
+   uiContainer.style.zIndex = "9999";
+   uiContainer.appendChild(startButton);
+   uiContainer.appendChild(stopButton);
+   uiContainer.appendChild(progressText);
+   uiContainer.appendChild(errorText);
+   document.body.appendChild(uiContainer);
+   
+   let isRunning = false;
+   let shouldStop = false;
+   let unlikeCount = loadProgress();
+   let errorCount = 0;
+   let waitTime = BASE_WAIT_TIME;
+   let lastUnlikeTime = Date.now();
+   
    async function unlikeAll() {
+     isRunning = true;
+     startButton.disabled = true;
+     stopButton.disabled = false;
+   
      const startTime = performance.now();
-     let count = 0;
-     let errorCount = 0;
-   
-     // IMPORTANT: Keep these set at 0, barring a severely slow internet connection
-     let baseWaitTime = 0;
-     let incrementWait = 0;
-     let decrementWait = 0;
-   
      let likeButtons = fetchLikes();
-     let startIndex = 0;
+     let retryCount = 0;
    
-     while (likeButtons.length > 0 && count < 2500) {
-       for (let i = startIndex; i < likeButtons.length; i++) {
+     while (likeButtons.length > 0 && unlikeCount < MAX_UNLIKES && !shouldStop) {
+       for (const button of likeButtons) {
          try {
-           // Fetch and log tweet text
-           let tweetText = fetchTweetText(likeButtons[i]).slice(0, 150);
+           const tweetText = fetchTweetText(button).slice(0, 150);
            console.log(`Unliking tweet: "${tweetText}"`);
+           button.click();
+           console.log(`%cUnliked ${++unlikeCount} tweets`, "color: aqua;");
+           saveProgress(unlikeCount);
+           updateProgress();
+           await wait(waitTime);
    
-           likeButtons[i].click();
-           console.log(`%cUnliked ${++count} tweets`, "color: aqua;");
-   
-           await wait(baseWaitTime);
-   
-           // Optional adaptive timing implementation
-           if (baseWaitTime > 1000 && errorCount === 0) {
-             // Decrease wait time after successful unlike
-             baseWaitTime -= decrementWait;
+           // Adaptive timing
+           if (waitTime > 1000 && errorCount === 0) {
+             waitTime -= DECREMENT_WAIT;
            }
+   
+           // Rate limiting
+           const now = Date.now();
+           const elapsedTime = now - lastUnlikeTime;
+           if (elapsedTime < RATE_LIMIT_WINDOW) {
+             const unlikes = unlikeCount - loadProgress();
+             if (unlikes >= RATE_LIMIT_MAX_UNLIKES) {
+               const remainingTime = RATE_LIMIT_WINDOW - elapsedTime;
+               console.log(
+                 `Rate limit reached, waiting ${remainingTime / 1000} seconds`
+               );
+               await wait(remainingTime);
+             }
+           }
+           lastUnlikeTime = now;
+           retryCount = 0;
          } catch (error) {
            console.error(`%cError unliking tweet: ${error}`, "color: red;");
            errorCount++;
-           // Increase wait time after error
-           baseWaitTime += incrementWait;
-           break;
+           updateError(error);
+           waitTime += INCREMENT_WAIT;
+           retryCount++;
+   
+           if (retryCount >= RETRY_COUNT) {
+             break;
+           }
          }
        }
    
-       if (errorCount > 0 && likeButtons.length > 0) {
-         // Reset error count after a successful batch
+       if (errorCount === 0 && likeButtons.length > 0) {
+         window.scrollTo(0, document.body.scrollHeight);
+         await wait(3000);
+         likeButtons = fetchLikes();
+       } else {
          errorCount = 0;
        }
-       // Scroll to bottom to load new tweets
-       window.scrollTo(0, document.body.scrollHeight);
-       // Wait for new tweets to load
-       await wait(3000);
-       // Fetch new batch of unliked tweets
-       likeButtons = fetchLikes();
-       // Reset start index after refreshing tweets
-       startIndex = 0;
      }
    
      const endTime = performance.now();
-     // Convert milliseconds to seconds
      const totalTime = (endTime - startTime) / 1000;
-     console.log(`%cTotal unliked = ${count}`, "color: aquamarine;");
+     console.log(`%cTotal unliked = ${unlikeCount}`, "color: aquamarine;");
      console.log(
        `%cTotal time taken: ${totalTime.toFixed(2)} seconds`,
        "color: aquamarine;"
      );
+   
+     isRunning = false;
+     startButton.disabled = false;
+     stopButton.disabled = true;
+     shouldStop = false;
    }
    
-   unlikeAll();
+   function updateProgress() {
+     progressText.textContent = `Unliked ${unlikeCount} tweets`;
+   
+     if (isRunning && !shouldStop) {
+       setTimeout(updateProgress, PROGRESS_REPORT_INTERVAL);
+     }
+   }
+   
+   function updateError(error) {
+     errorText.textContent = `Error: ${error}`;
+   }
+   
+   startButton.addEventListener("click", unlikeAll);
+   stopButton.addEventListener("click", () => {
+     shouldStop = true;
+   });
    ```
-
+   
    **C'est fini!**
-
+   
    ---
 
 **Note:** Adjust the wait time (in milliseconds) according to your internet speed if needed.
