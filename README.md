@@ -10,10 +10,6 @@ Or just want to clean up your liked tweets?
 
 RapidUnlike is a script that unlikes all your liked tweets at an impressive speed. It's simple, efficient, and user-friendly.
 
-##  🎥 Demo
-
-![demo](https://gist.github.com/assets/4010514/bb253a4a-2182-4d02-bb25-02aeb4d26bbe)
-
 ## 🔧 Features
 
 - <u>Efficiency</u>: Unlike ***thousands*** of tweets in minutes.
