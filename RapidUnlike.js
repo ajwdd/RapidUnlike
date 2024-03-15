@@ -8,18 +8,27 @@
 //└─────────────────────────────────────────────────────┘
 
 // Configuration
-const MAX_UNLIKES = 2500;
-const BASE_WAIT_TIME = 100;
-const INCREMENT_WAIT = 200;
-const DECREMENT_WAIT = 50;
-const RETRY_COUNT = 3;
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_UNLIKES = 50;
-const PROGRESS_REPORT_INTERVAL = 60 * 1000; // 1 minute
+const config = {
+  MAX_UNLIKES: 5500,
+  BASE_WAIT_TIME: 100,
+  INCREMENT_WAIT: 200,
+  DECREMENT_WAIT: 50,
+  RETRY_COUNT: 3,
+  RATE_LIMIT_WINDOW: 60 * 1000,
+  RATE_LIMIT_MAX_UNLIKES: 50,
+  PROGRESS_REPORT_INTERVAL: 60 * 1000,
+};
 
 // Helper functions
-function fetchLikes() {
-  return document.querySelectorAll('[data-testid="unlike"]');
+function fetchLikes(lastButton = null) {
+  const buttons = document.querySelectorAll('[data-testid="unlike"]');
+  if (lastButton) {
+    const lastButtonIndex = Array.from(buttons).findIndex(
+      (button) => button === lastButton
+    );
+    return Array.from(buttons).slice(lastButtonIndex + 1);
+  }
+  return buttons;
 }
 
 function fetchTweetText(button) {
@@ -34,23 +43,14 @@ function wait(ms) {
 }
 
 function saveProgress(count) {
-  localStorage.setItem("unlikeCount", count);
+  localStorage.setItem("totalUnlikeCount", count);
 }
 
 function loadProgress() {
-  return localStorage.getItem("unlikeCount") || 0;
+  return localStorage.getItem("totalUnlikeCount") || 0;
 }
 
 // UI elements
-const startButton = document.createElement("button");
-startButton.textContent = "Start Unliking";
-const stopButton = document.createElement("button");
-stopButton.textContent = "Stop Unliking";
-stopButton.disabled = true;
-const progressText = document.createElement("div");
-const errorText = document.createElement("div");
-
-// Create UI container
 const uiContainer = document.createElement("div");
 uiContainer.style.position = "fixed";
 uiContainer.style.top = "10px";
@@ -59,51 +59,93 @@ uiContainer.style.backgroundColor = "#333";
 uiContainer.style.color = "#fff";
 uiContainer.style.padding = "10px";
 uiContainer.style.zIndex = "9999";
+
+const startButton = document.createElement("button");
+startButton.textContent = "Start";
+startButton.style.marginRight = "10px";
+const stopButton = document.createElement("button");
+stopButton.textContent = "Stop";
+stopButton.disabled = true;
+stopButton.style.marginRight = "10px";
+const pauseButton = document.createElement("button");
+pauseButton.textContent = "Pause";
+pauseButton.disabled = true;
+pauseButton.style.marginRight = "10px";
+const resumeButton = document.createElement("button");
+resumeButton.textContent = "Resume";
+resumeButton.disabled = true;
+const statusText = document.createElement("div");
+statusText.style.marginTop = "10px";
+const errorText = document.createElement("div");
+errorText.style.marginTop = "5px";
+
 uiContainer.appendChild(startButton);
 uiContainer.appendChild(stopButton);
-uiContainer.appendChild(progressText);
+uiContainer.appendChild(pauseButton);
+uiContainer.appendChild(resumeButton);
+uiContainer.appendChild(statusText);
 uiContainer.appendChild(errorText);
 document.body.appendChild(uiContainer);
 
 let isRunning = false;
+let isPaused = false;
 let shouldStop = false;
-let unlikeCount = loadProgress();
+let unlikeCount = 0;
+let totalUnlikeCount = loadProgress();
 let errorCount = 0;
-let waitTime = BASE_WAIT_TIME;
+let waitTime = config.BASE_WAIT_TIME;
 let lastUnlikeTime = Date.now();
+let lastProcessedButton = null;
 
 async function unlikeAll() {
   isRunning = true;
+  isPaused = false;
+  shouldStop = false;
   startButton.disabled = true;
   stopButton.disabled = false;
+  pauseButton.disabled = false;
+  resumeButton.disabled = true;
 
   const startTime = performance.now();
   let likeButtons = fetchLikes();
   let retryCount = 0;
 
-  while (likeButtons.length > 0 && unlikeCount < MAX_UNLIKES && !shouldStop) {
+  while (
+    likeButtons.length > 0 &&
+    unlikeCount < config.MAX_UNLIKES &&
+    !shouldStop
+  ) {
     for (const button of likeButtons) {
+      if (isPaused) {
+        await waitForResume();
+      }
+
+      if (shouldStop) {
+        break;
+      }
+
       try {
         const tweetText = fetchTweetText(button).slice(0, 150);
         console.log(`Unliking tweet: "${tweetText}"`);
         button.click();
         console.log(`%cUnliked ${++unlikeCount} tweets`, "color: aqua;");
-        saveProgress(unlikeCount);
-        updateProgress();
+        totalUnlikeCount++;
+        saveProgress(totalUnlikeCount);
+        updateUI();
         await wait(waitTime);
 
         // Adaptive timing
         if (waitTime > 1000 && errorCount === 0) {
-          waitTime -= DECREMENT_WAIT;
+          waitTime -= config.DECREMENT_WAIT;
         }
 
         // Rate limiting
         const now = Date.now();
         const elapsedTime = now - lastUnlikeTime;
-        if (elapsedTime < RATE_LIMIT_WINDOW) {
+        if (elapsedTime < config.RATE_LIMIT_WINDOW) {
           const unlikes = unlikeCount - loadProgress();
-          if (unlikes >= RATE_LIMIT_MAX_UNLIKES) {
-            const remainingTime = RATE_LIMIT_WINDOW - elapsedTime;
+          if (unlikes >= config.RATE_LIMIT_MAX_UNLIKES) {
+            const remainingTime = config.RATE_LIMIT_WINDOW - elapsedTime;
             console.log(
               `Rate limit reached, waiting ${remainingTime / 1000} seconds`
             );
@@ -112,14 +154,15 @@ async function unlikeAll() {
         }
         lastUnlikeTime = now;
         retryCount = 0;
+        lastProcessedButton = button;
       } catch (error) {
         console.error(`%cError unliking tweet: ${error}`, "color: red;");
         errorCount++;
         updateError(error);
-        waitTime += INCREMENT_WAIT;
+        waitTime += config.INCREMENT_WAIT;
         retryCount++;
 
-        if (retryCount >= RETRY_COUNT) {
+        if (retryCount >= config.RETRY_COUNT) {
           break;
         }
       }
@@ -128,7 +171,7 @@ async function unlikeAll() {
     if (errorCount === 0 && likeButtons.length > 0) {
       window.scrollTo(0, document.body.scrollHeight);
       await wait(3000);
-      likeButtons = fetchLikes();
+      likeButtons = fetchLikes(lastProcessedButton);
     } else {
       errorCount = 0;
     }
@@ -136,7 +179,11 @@ async function unlikeAll() {
 
   const endTime = performance.now();
   const totalTime = (endTime - startTime) / 1000;
-  console.log(`%cTotal unliked = ${unlikeCount}`, "color: aquamarine;");
+  console.log(`%cUnliked this session: ${unlikeCount}`, "color: aquamarine;");
+  console.log(
+    `%cTotal unliked with RapidUnlike = ${totalUnlikeCount}`,
+    "color: aquamarine;"
+  );
   console.log(
     `%cTotal time taken: ${totalTime.toFixed(2)} seconds`,
     "color: aquamarine;"
@@ -145,14 +192,16 @@ async function unlikeAll() {
   isRunning = false;
   startButton.disabled = false;
   stopButton.disabled = true;
-  shouldStop = false;
+  pauseButton.disabled = true;
+  resumeButton.disabled = true;
+  unlikeCount = 0;
 }
 
-function updateProgress() {
-  progressText.textContent = `Unliked ${unlikeCount} tweets`;
+function updateUI() {
+  statusText.textContent = `Unliked this session: ${unlikeCount} | Total unliked with RapidUnlike: ${totalUnlikeCount}`;
 
   if (isRunning && !shouldStop) {
-    setTimeout(updateProgress, PROGRESS_REPORT_INTERVAL);
+    setTimeout(updateUI, config.PROGRESS_REPORT_INTERVAL);
   }
 }
 
@@ -160,7 +209,30 @@ function updateError(error) {
   errorText.textContent = `Error: ${error}`;
 }
 
+function waitForResume() {
+  return new Promise((resolve) => {
+    const checkResume = () => {
+      if (!isPaused) {
+        resolve();
+      } else {
+        setTimeout(checkResume, 1000);
+      }
+    };
+    checkResume();
+  });
+}
+
 startButton.addEventListener("click", unlikeAll);
 stopButton.addEventListener("click", () => {
   shouldStop = true;
+});
+pauseButton.addEventListener("click", () => {
+  isPaused = true;
+  pauseButton.disabled = true;
+  resumeButton.disabled = false;
+});
+resumeButton.addEventListener("click", () => {
+  isPaused = false;
+  pauseButton.disabled = false;
+  resumeButton.disabled = true;
 });
