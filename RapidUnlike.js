@@ -10,7 +10,7 @@
 // Configuration
 const config = {
   MAX_UNLIKES: 5500,
-  BASE_WAIT_TIME: 100,
+  BASE_WAIT_TIME: 250,
   INCREMENT_WAIT: 200,
   DECREMENT_WAIT: 50,
   RETRY_COUNT: 3,
