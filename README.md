@@ -3,7 +3,7 @@
 [![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=flat&logo=javascript)](https://en.wikipedia.org/wiki/Brendan_Eich) [![Stars](https://img.shields.io/github/stars/ajwdd/RapidUnlike.svg?style=flat)](https://github.com/ajwdd/RapidUnlike/stargazers) [![Size](https://img.shields.io/github/repo-size/ajwdd/RapidUnlike)](https://github.com/ajwdd/RapidUnlike) [![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](https://unlicense.org) [![IsMaintained](https://img.shields.io/badge/Maintained%3F-no-red.svg)](https://github.com/ajwdd/RapidUnlike/activity)
 # 🚧 IMPORTANT UPDATE 🚧
 X no longer displays likes publicly making this essentially useless.  
-I will be working on other X tools in the future but this will be archived for now. 
+I will be working on other X tools in the future. 
 --
 New year new you? 
 
