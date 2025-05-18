@@ -1,29 +1,26 @@
-# 🚀 RapidUnlike 💔
+# RapidUnlike 💔
 
 [![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=flat&logo=javascript)](https://en.wikipedia.org/wiki/Brendan_Eich) [![Stars](https://img.shields.io/github/stars/ajwdd/RapidUnlike.svg?style=flat)](https://github.com/ajwdd/RapidUnlike/stargazers) [![Size](https://img.shields.io/github/repo-size/ajwdd/RapidUnlike)](https://github.com/ajwdd/RapidUnlike) [![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](https://unlicense.org) [![IsMaintained](https://img.shields.io/badge/Maintained%3F-yes-blue.svg)](https://github.com/ajwdd/RapidUnlike/activity)
 
-New year new you? 
-Want to start fresh? 
-Or just want to clean up your liked tweets? 
 
-RapidUnlike is a script that unlikes all your liked tweets at an impressive speed. It's simple, efficient, and user-friendly.
+⚠️ Due to recent changes on X, the newest version of the script has gone from "rapid" to cautious. This is to avoid temporary labels that **limit reach** for weeks and shadow bans. All presets wait times are **100%** safe to use, change them at your own risk. ⚠️
 
 ## 🔧 Features
 
-- <u>Efficiency</u>: Unlike ***thousands*** of tweets in minutes.
+- <u>Bot Detection Avoidance</u>: Randomized actions to avoid limited reach and shadow bans.
 - <u>Smart Wait Times</u>: Prevent rate-limiting with smart wait times between unlikes.
-- <u>User-Friendly</u>: Simple execution with UI start, pause, resume and stop, while providing a text preview of the unliked tweets, count total, and total time taken.
+- <u>User-Friendly</u>: Simple to use, including a straight-forward UI.
 
 ## 📜 Instructions
 
-1. Navigate to your profile's "posts liked" page: https://www.x.com/yourusername/likes.
+1. Navigate to your profile's Likes page: https://www.x.com/yourusername/likes.
 
 2. Open the browser's console:
 
    - Linux, Windows, ChromeOS: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>J</kbd>
    - macOS: <kbd>Cmd</kbd> + <kbd>Option</kbd> + <kbd>J</kbd>
 
-3. Copy the entirety of `RapidUnlike` and paste into the console then press <kbd>Enter</kbd>
+3. Copy the entirety of `RapidUnlike` and paste into the console, press <kbd>Enter</kbd>, then click the Start button.
 
    ```js
    //┌─────────────────────────────────────────────────────┐
@@ -32,38 +29,111 @@ RapidUnlike is a script that unlikes all your liked tweets at an impressive spee
    //│ | |_) / _` | '_ \| |/ _` | | | | '_ \| | | |/ / _ \ │
    //│ |  _ < (_| | |_) | | (_| | |_| | | | | | |   <  __/ │
    //│ |_| \_\__,_| .__/|_|\__,_|\___/|_| |_|_|_|_|\_\___| │
-   //│            |_|   https://github.com/ajwdd           │
+   //│  v1.0.0    |_|   https://github.com/ajwdd           │
    //└─────────────────────────────────────────────────────┘
    
    // Configuration settings
    const config = {
-     MAX_UNLIKES: 15000, // Maximum number of tweets to unlike in a session
-     RATE_LIMIT_WINDOW: 60 * 1000, // Time window for rate limiting (in milliseconds)
-     RATE_LIMIT_MAX_UNLIKES: 60, // Maximum unlikes allowed within the rate limit window
-     TOKEN_REFILL_RATE: 60 / (60 * 1000), // Rate at which tokens are refilled (per millisecond)
-     PROGRESS_REPORT_INTERVAL: 60 * 1000, // Interval for reporting progress (in milliseconds)
-     BASE_WAIT_TIME: 250, // Base wait time between actions (in milliseconds)
-     INCREMENT_WAIT: 200, // Incremental wait time added after errors (in milliseconds)
-     DECREMENT_WAIT: 50, // Decremental wait time reduced after successful actions (in milliseconds)
-     RETRY_COUNT: 3, // Number of retries allowed for errors
+     MAX_UNLIKES: 15000,
+     RATE_LIMIT_WINDOW: 60 * 1000,
+     RATE_LIMIT_MAX_UNLIKES: 60,
+     TOKEN_REFILL_RATE: 60 / (60 * 1000),
+     PROGRESS_REPORT_INTERVAL: 60 * 1000,
+     BASE_WAIT_TIME: 50,
+     INCREMENT_WAIT: 150,
+     DECREMENT_WAIT: 50,
+     RETRY_COUNT: 3,
    };
    
-   // Injects custom CSS for "ghost" button styling
-   const ghostStyle = document.createElement("style");
-   ghostStyle.textContent = `
-     .ghost { opacity: 0.5; pointer-events: none; }
-   `;
-   document.head.appendChild(ghostStyle);
+   const PRELOAD_TRANSITION_MS = 250;
+   const FAST_TRANSITION_MS = 150;
    
-   // Rate limiter to manage API request limits
+   const enhancedStyles = document.createElement("style");
+   enhancedStyles.textContent = `
+     :root {
+       --primary-color: #1DA1F2;
+       --primary-hover-color: #0c85d0;
+       --danger-color: #E0245E;
+       --danger-hover-color: #c01f4c;
+       --warning-color: #F5A623; 
+       --warning-hover-color: #D89620;
+       --success-color: #17BF63;
+       --success-hover-color: #14a353;
+       --text-color: #e1e8ed;
+       --bg-color: rgba(21, 32, 43, 0.97);
+       --border-color: rgba(56, 68, 77, 0.7);
+       --container-shadow: rgba(0, 0, 0, 0.6);
+       --button-shadow: rgba(0, 0, 0, 0.3);
+       --border-radius: 12px;
+       --transition-speed-fast: 0.15s;
+       --transition-speed-medium: 0.25s;
+       --transition-speed-slow: 0.4s;
+     }
+     .twitter-unliker-ui {
+       position: fixed; top: 20px; right: 20px; width: 300px;
+       background-color: var(--bg-color); color: var(--text-color);
+       padding: 20px; border-radius: var(--border-radius); z-index: 100000;
+       font-family: "TwitterChirp", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+       box-shadow: 0 8px 25px var(--container-shadow);
+       backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+       border: 1px solid var(--border-color);
+       opacity: 0; transform: translateY(-20px);
+       display: flex; flex-direction: column; align-items: center;
+     }
+     .ui-container-enter { animation: fadeInSlideDown var(--transition-speed-slow) ease-out forwards; }
+     .ui-container-exit { animation: fadeOutSlideUp var(--transition-speed-medium) ease-in forwards; }
+     @keyframes fadeInSlideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+     @keyframes fadeOutSlideUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
+   
+     .button-group { display: flex; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
+     .control-button {
+       margin: 5px; padding: 10px 16px; border: none; border-radius: 20px;
+       cursor: pointer; font-weight: bold; font-size: 14px;
+       transition: background-color var(--transition-speed-fast) ease, opacity var(--transition-speed-medium) ease, transform var(--transition-speed-fast) ease, box-shadow var(--transition-speed-fast) ease;
+       box-shadow: 0 2px 4px var(--button-shadow); outline: none;
+       display: inline-flex; align-items: center; justify-content: center; color: white; 
+     }
+     .control-button:hover:not(.ghost) { transform: translateY(-2px); box-shadow: 0 4px 8px var(--button-shadow); }
+     .control-button:active:not(.ghost) { transform: translateY(0px); box-shadow: 0 2px 3px var(--button-shadow); }
+     .ghost { opacity: 0.45 !important; pointer-events: none !important; transform: translateY(0) !important; box-shadow: 0 2px 4px var(--button-shadow) !important; }
+   
+     .btn-start { background-color: var(--primary-color); }
+     .btn-start:hover:not(.ghost) { background-color: var(--primary-hover-color); }
+     .btn-pause { background-color: var(--warning-color); } 
+     .btn-pause:hover:not(.ghost) { background-color: var(--warning-hover-color); }
+     .btn-resume { background-color: var(--success-color); }
+     .btn-resume:hover:not(.ghost) { background-color: var(--success-hover-color); }
+   
+     .ui-close-btn { position: absolute; top: 12px; right: 15px; cursor: pointer; font-size: 26px; line-height: 1; font-weight: bold; color: #8899a6; transition: color var(--transition-speed-fast) ease, transform var(--transition-speed-medium) ease; }
+     .ui-close-btn:hover { color: var(--primary-color); transform: rotate(90deg) scale(1.1); }
+   
+     .text-container { width: 100%; text-align: center; margin-top: 5px; margin-bottom: 5px; transition: opacity var(--transition-speed-medium) ease, transform var(--transition-speed-medium) ease, max-height var(--transition-speed-medium) ease-in-out, min-height var(--transition-speed-medium) ease-in-out, margin-top var(--transition-speed-medium) ease-in-out, padding var(--transition-speed-medium) ease-in-out; overflow: hidden; }
+     .status-text-style { font-size: 15px; font-weight: 500; color: var(--text-color); min-height: 20px; }
+     .status-label, .status-separator { color: var(--text-color); }
+     .status-value { color: var(--text-color); display: inline-block; min-width: 10px; text-align: left; }
+     .status-suffix-message { font-style: italic; }
+   
+     .error-text-container-style, .preload-text-container-style { max-height: 0; opacity: 0; margin-top: 0 !important; margin-bottom: 0 !important; min-height: 0 !important; padding-top: 0 !important; padding-bottom: 0 !important; }
+     .error-text-container-style.active, .preload-text-container-style.active { max-height: 50px; opacity: 1; margin-top: 8px !important; margin-bottom: 8px !important; min-height: 20px; }
+     .error-text-style { color: var(--danger-color); font-size: 13px; font-weight: 500; }
+     .preload-text-style { font-weight: bold; font-size: 14px; color: var(--primary-color); }
+     .preload-pulse { animation: pulseAnim 1.5s infinite ease-in-out; }
+     @keyframes pulseAnim { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+   
+     body::-webkit-scrollbar { width: 10px; } body::-webkit-scrollbar-track { background: #15202b; } body::-webkit-scrollbar-thumb { background-color: var(--primary-color); border-radius: 10px; border: 2px solid #15202b; }
+   `;
+   document.head.appendChild(enhancedStyles);
+   
    const rateLimiter = {
-     tokens: config.RATE_LIMIT_MAX_UNLIKES, // Initial token count
-     lastRefill: Date.now(), // Timestamp of the last token refill
+     tokens: config.RATE_LIMIT_MAX_UNLIKES,
+     lastRefill: Date.now(),
      refill() {
-       const now = Date.now();
-       const elapsed = now - this.lastRefill;
-       const toAdd = elapsed * config.TOKEN_REFILL_RATE;
-       this.tokens = Math.min(config.RATE_LIMIT_MAX_UNLIKES, this.tokens + toAdd);
+       const now = Date.now(),
+         elapsed = now - this.lastRefill;
+       this.tokens = Math.min(
+         config.RATE_LIMIT_MAX_UNLIKES,
+         this.tokens + elapsed * config.TOKEN_REFILL_RATE
+       );
        this.lastRefill = now;
      },
      async removeToken() {
@@ -74,392 +144,622 @@ RapidUnlike is a script that unlikes all your liked tweets at an impressive spee
        }
        const needed = 1 - this.tokens;
        const waitMs = needed / config.TOKEN_REFILL_RATE;
-       console.log(`Token bucket empty — waiting ${waitMs.toFixed(0)}ms`);
        await wait(waitMs);
        this.refill();
-       this.tokens -= 1;
+       if (this.tokens >= 1) {
+         this.tokens -= 1;
+       } else {
+         console.warn(
+           "[RateLimiter] Still no token after waiting. Potential issue or extreme load."
+         );
+         await wait(config.RATE_LIMIT_WINDOW / config.RATE_LIMIT_MAX_UNLIKES);
+         this.tokens = Math.max(0, this.tokens - 1);
+       }
      },
    };
-   
-   // Utility function to pause execution for a specified duration
    function wait(ms) {
      return new Promise((resolve) => setTimeout(resolve, ms));
    }
    
-   // Attempts to get the CSRF token from cookies
-   function getCsrfToken() {
-     const match = document.cookie.match(/ct0=([^;]+)/);
-     return match ? match[1] : null;
+   function extractTweetId(btn) {
+     const article = btn.closest("article");
+     if (!article) return null;
+     const links = Array.from(article.querySelectorAll('a[href*="/status/"]'));
+     for (const link of links) {
+       const href = link.getAttribute("href");
+       if (href) {
+         const parts = href.split("/"),
+           statusIndex = parts.indexOf("status");
+         if (statusIndex !== -1 && parts.length > statusIndex + 1) {
+           const pId = parts[statusIndex + 1].split("?")[0];
+           if (/^\d+$/.test(pId)) return pId;
+         }
+       }
+     }
+     return null;
+   }
+   function fetchTweetText(btn) {
+     const el = btn.closest("article")?.querySelector('[data-testid="tweetText"]');
+     return el ? el.textContent.trim() : "No text found";
+   }
+   function saveProgress(count) {
+     localStorage.setItem("totalUnlikeCount_v2", count);
+   }
+   function loadProgress() {
+     return parseInt(localStorage.getItem("totalUnlikeCount_v2") || "0", 10);
    }
    
-   // Attempts to get the authorization token from the global state
-   function getAuthToken() {
-     try {
-       return window.__INITIAL_STATE__.config.authorization.replace("Bearer ", "");
-     } catch {
-       return null;
+   const uiContainer = document.createElement("div");
+   uiContainer.className = "twitter-unliker-ui";
+   document.body.appendChild(uiContainer);
+   setTimeout(() => uiContainer.classList.add("ui-container-enter"), 50);
+   const closeBtn = document.createElement("span");
+   closeBtn.className = "ui-close-btn";
+   closeBtn.textContent = "×";
+   uiContainer.appendChild(closeBtn);
+   const buttonGroup = document.createElement("div");
+   buttonGroup.className = "button-group";
+   uiContainer.appendChild(buttonGroup);
+   const startBtn = document.createElement("button"),
+     pauseBtn = document.createElement("button"),
+     resumeBtn = document.createElement("button");
+   [
+     { btn: startBtn, text: "Start", class: "btn-start" },
+     { btn: pauseBtn, text: "Pause", class: "btn-pause" },
+     { btn: resumeBtn, text: "Resume", class: "btn-resume" },
+   ].forEach((c) => {
+     c.btn.textContent = c.text;
+     c.btn.className = `control-button ${c.class}`;
+     buttonGroup.appendChild(c.btn);
+   });
+   const statusTextContainer = document.createElement("div");
+   statusTextContainer.className = "text-container";
+   const statusText = document.createElement("div");
+   statusText.className = "status-text-style";
+   statusTextContainer.appendChild(statusText);
+   const errorTextContainer = document.createElement("div");
+   errorTextContainer.className = "text-container error-text-container-style";
+   const errorText = document.createElement("div");
+   errorText.className = "error-text-style";
+   errorTextContainer.appendChild(errorText);
+   const preloadTextContainer = document.createElement("div");
+   preloadTextContainer.className = "text-container preload-text-container-style";
+   const preloadText = document.createElement("div");
+   preloadText.className = "preload-text-style";
+   preloadTextContainer.appendChild(preloadText);
+   uiContainer.append(
+     statusTextContainer,
+     errorTextContainer,
+     preloadTextContainer
+   );
+   
+   let uiSessionCountEl, uiTotalCountEl;
+   let isRunning = false,
+     isPaused = false,
+     shouldStop = false,
+     isProcessingTweet = false;
+   let sessionCount = 0,
+     totalCount = loadProgress(),
+     errorCount = 0;
+   let waitTime = config.BASE_WAIT_TIME;
+   const processed = new Set();
+   let observer,
+     preloadAnimId,
+     preloadScrollerId,
+     preloadTimeoutId,
+     statusAnimIntervalId;
+   
+   async function setStatusTextContainerVisible(isVisible) {
+     if (isVisible) {
+       statusTextContainer.style.display = "block";
+       await wait(10);
+       statusTextContainer.style.opacity = "1";
+       statusTextContainer.style.transform = "translateY(0)";
+     } else {
+       statusTextContainer.style.opacity = "0";
+       statusTextContainer.style.transform = "translateY(5px)";
+       await wait(FAST_TRANSITION_MS);
+       statusTextContainer.style.display = "none";
      }
    }
-   
-   // Extracts the tweet ID from a button element
-   function extractTweetId(btn) {
-     const link = btn.closest("article").querySelector('a[href*="/status/"]');
-     return link ? link.href.split("/").pop() : null;
+   async function setPreloadTextContainerActive(isActive) {
+     const c = preloadTextContainer.classList.contains("active");
+     if (isActive && !c) preloadTextContainer.classList.add("active");
+     else if (!isActive && c) {
+       preloadTextContainer.classList.remove("active");
+       await wait(PRELOAD_TRANSITION_MS);
+     }
    }
-   
-   // Fetches the text content of a tweet
-   function fetchTweetText(btn) {
-     const tweetElement = btn
-       .closest("article")
-       .querySelector('[data-testid="tweetText"]');
-     return tweetElement ? tweetElement.textContent : "No text";
+   async function updatePreloadTextMessage(text, pulse = false) {
+     preloadText.textContent = text;
+     preloadText.classList.toggle("preload-pulse", pulse && text.includes("..."));
    }
-   
-   // Saves the progress of unliked tweets to local storage
-   function saveProgress(count) {
-     localStorage.setItem("totalUnlikeCount", count);
+   async function setErrorTextContainerActive(isActive) {
+     const c = errorTextContainer.classList.contains("active");
+     if (isActive && !c) errorTextContainer.classList.add("active");
+     else if (!isActive && c) {
+       errorTextContainer.classList.remove("active");
+       await wait(PRELOAD_TRANSITION_MS);
+     }
    }
-   
-   // Loads the progress of unliked tweets from local storage
-   function loadProgress() {
-     return parseInt(localStorage.getItem("totalUnlikeCount") || "0", 10);
+   async function updateErrorText(newErrorText) {
+     if (newErrorText && newErrorText.trim() !== "") {
+       await setErrorTextContainerActive(true);
+       errorText.textContent = newErrorText;
+     } else {
+       errorText.textContent = "";
+       await setErrorTextContainerActive(false);
+     }
    }
-   
-   // UI setup for displaying controls and status
-   const uiContainer = document.createElement("div");
-   Object.assign(uiContainer.style, {
-     position: "fixed", // Fixes the UI container to a specific position on the screen
-     top: "10px", // Distance from the top of the screen
-     right: "10px", // Distance from the right of the screen
-     width: "260px", // Width of the container
-     backgroundColor: "#333", // Background color of the container
-     color: "#fff", // Text color
-     padding: "15px", // Padding inside the container
-     borderRadius: "4px", // Rounded corners for the container
-     zIndex: 9999, // Ensures the container appears above other elements
-     fontFamily: "sans-serif", // Font style for the text
-     textAlign: "center", // Centers the text inside the container
-   });
-   document.body.appendChild(uiContainer); // Adds the container to the document body
-   
-   // Close button for the UI container
-   const closeBtn = document.createElement("span");
-   Object.assign(closeBtn.style, {
-     position: "absolute", // Positions the button relative to the container
-     top: "5px", // Distance from the top of the container
-     right: "8px", // Distance from the right of the container
-     cursor: "pointer", // Changes the cursor to a pointer when hovering
-     fontSize: "16px", // Font size of the button
-     fontWeight: "bold", // Makes the button text bold
-   });
-   closeBtn.textContent = "×"; // Sets the text content of the button
-   uiContainer.appendChild(closeBtn); // Adds the close button to the container
-   
-   // Control buttons for starting, stopping, pausing, and resuming
-   const startBtn = document.createElement("button");
-   const stopBtn = document.createElement("button");
-   const pauseBtn = document.createElement("button");
-   const resumeBtn = document.createElement("button");
-   [startBtn, stopBtn, pauseBtn, resumeBtn].forEach((b) => {
-     b.style.margin = "5px"; // Adds margin around each button
-     uiContainer.appendChild(b); // Adds each button to the container
-   });
-   startBtn.textContent = "Start"; // Label for the start button
-   stopBtn.textContent = "Stop"; // Label for the stop button
-   pauseBtn.textContent = "Pause"; // Label for the pause button
-   resumeBtn.textContent = "Resume"; // Label for the resume button
-   
-   // Status and error text elements
-   const statusText = document.createElement("div");
-   const errorText = document.createElement("div");
-   const preloadText = document.createElement("div");
-   statusText.style.marginTop = "10px"; // Adds margin above the status text
-   errorText.style.marginTop = "4px"; // Adds margin above the error text
-   preloadText.style.marginTop = "10px"; // Adds margin above the preload text
-   preloadText.style.fontWeight = "bold"; // Makes the preload text bold
-   uiContainer.append(statusText, errorText, preloadText); // Adds the text elements to the container
-   
-   // State variables to manage the script's execution state
-   let isRunning = false, // Indicates if the script is currently running
-     isPaused = false, // Indicates if the script is paused
-     shouldStop = false; // Indicates if the script should stop
-   
-   // Counters and timers for tracking progress and errors
-   let sessionCount = 0, // Number of tweets unliked in the current session
-     totalCount = loadProgress(), // Total number of tweets unliked (loaded from storage)
-     errorCount = 0, // Number of consecutive errors encountered
-     waitTime = config.BASE_WAIT_TIME; // Current wait time between actions
-   
-   // Set to track processed tweet IDs
-   const processed = new Set();
-   
-   // Variables for managing animations and observers
-   let observer, // Mutation observer for detecting new tweets
-     preloadAnimId, // ID for preload animation interval
-     preloadCountdownId, // ID for preload countdown interval
-     preloadScrollerId, // ID for preload scrolling interval
-     preloadTimeoutId, // ID for preload timeout
-     statusAnimId; // ID for status animation interval
-   
-   // Updates the state of control buttons based on the script's current state
+   async function updateCountValue(element, newValue) {
+     const v = String(newValue);
+     if (!element || element.textContent === v) return;
+     element.style.transition = "opacity 0.1s ease-out";
+     element.style.opacity = "0";
+     await wait(100);
+     element.textContent = v;
+     element.style.transition = "opacity 0.15s ease-in";
+     element.style.opacity = "1";
+     await wait(150);
+     element.style.transition = "";
+   }
+   function setupStatusDisplay(mode = "totalOnly") {
+     const s = statusText.querySelector(".status-suffix-message"),
+       h = s ? s.outerHTML : "";
+     if (mode === "sessionAndTotal")
+       statusText.innerHTML = `<span class="status-label">Session: </span><span class="status-value" id="uiSessCount">0</span><span class="status-separator"> | </span><span class="status-label">Total: </span><span class="status-value" id="uiTotCount">${totalCount}</span>${h}`;
+     else
+       statusText.innerHTML = `<span class="status-label">Welcome to RapidUnlike!</span>${h}`;
+     uiSessionCountEl = document.getElementById("uiSessCount");
+     uiTotalCountEl = document.getElementById("uiTotCount");
+   }
    function updateButtonStates() {
-     [startBtn, stopBtn, pauseBtn, resumeBtn].forEach(
-       (b) => b.classList.add("ghost") // Disables all buttons initially
-     );
-     if (!isRunning && !isPaused) startBtn.classList.remove("ghost"); // Enable "Start" if not running or paused
-     if (isRunning && !isPaused)
-       [stopBtn, pauseBtn].forEach((b) => b.classList.remove("ghost")); // Enable "Stop" and "Pause" if running
-     if (isRunning && isPaused)
-       [stopBtn, resumeBtn].forEach((b) => b.classList.remove("ghost")); // Enable "Stop" and "Resume" if paused
+     [startBtn, pauseBtn, resumeBtn].forEach((b) => {
+       b.classList.add("ghost");
+       b.style.display = "inline-flex";
+     });
+     if (!isRunning && !isPaused) startBtn.classList.remove("ghost");
+     else if (isRunning && !isPaused) pauseBtn.classList.remove("ghost");
+     else if (isRunning && isPaused) resumeBtn.classList.remove("ghost");
    }
-   updateButtonStates(); // Initialize button states
    
-   // Logic for the close button to stop the script and clean up resources
-   closeBtn.addEventListener("click", () => {
-     shouldStop = true; // Signal the script to stop
-     isRunning = false; // Set running state to false
-     isPaused = false; // Set paused state to false
-     updateButtonStates(); // Update button states
-     if (observer) observer.disconnect(); // Disconnect the mutation observer
-     clearInterval(preloadAnimId); // Clear preload animation interval
-     clearInterval(preloadCountdownId); // Clear preload countdown interval
-     clearInterval(preloadScrollerId); // Clear preload scrolling interval
-     clearTimeout(preloadTimeoutId); // Clear preload timeout
-     clearInterval(statusAnimId); // Clear status animation interval
-     document.head.removeChild(ghostStyle); // Remove injected CSS
-     document.body.removeChild(uiContainer); // Remove the UI container
+   closeBtn.addEventListener("click", async () => {
+     shouldStop = true;
+     isRunning = false;
+     isPaused = false;
+     if (observer) observer.disconnect();
+     [preloadAnimId, preloadScrollerId, statusAnimIntervalId].forEach(
+       clearInterval
+     );
+     clearTimeout(preloadTimeoutId);
+     uiContainer.classList.remove("ui-container-enter");
+     uiContainer.classList.add("ui-container-exit");
+     await wait(PRELOAD_TRANSITION_MS);
+     if (enhancedStyles.parentNode)
+       enhancedStyles.parentNode.removeChild(enhancedStyles);
+     if (uiContainer.parentNode) uiContainer.parentNode.removeChild(uiContainer);
+     console.log("Unliker script closed and cleaned up.");
    });
    
-   // Preload helper function to load tweets for a specified duration
    async function preloadTweets(durationMs) {
-     return new Promise((resolve) => {
-       console.log(
-         `
-   ┌─────────────────────────────────────────────────────┐
-   │  ____             _     _ _   _       _ _ _         │
-   │ |  _ \\ __ _ _ __ (_) __| | | | |_ __ | (_) | _____  │
-   │ | |_) / _\` | '_ \\| |/ _\` | | | | '_ \\| | | |/ / _ \\ │
-   │ |  _ < (_| | |_) | | (_| | |_| | | | | | |   <  __/ │
-   │ |_| \\_\\__,_| .__/|_|\\__,_|\\___/|_| |_|_|_|_|\\_\\___| │
-   │            |_|   https://github.com/ajwdd           │
-   └─────────────────────────────────────────────────────┘
-   `
-       );
-       console.log("Preload started");
-   
+     return new Promise(async (resolve) => {
+       await setStatusTextContainerVisible(false);
+       await setPreloadTextContainerActive(true);
+       await updatePreloadTextMessage(`Preloading tweets`, true);
        const start = Date.now();
        let dots = 0;
-   
-       // Animation for preload status
-       preloadAnimId = setInterval(() => {
+       preloadAnimId = setInterval(async () => {
          dots = (dots % 3) + 1;
-         preloadText.textContent = `Preloading ${".".repeat(dots)}`;
-       }, 1000);
-   
-       // Countdown timer for preload duration
-       preloadCountdownId = setInterval(() => {
-         const elapsed = Date.now() - start;
-         const remain = Math.max(0, Math.ceil((durationMs - elapsed) / 1000));
-         preloadText.textContent = `Preloading ${".".repeat(dots)} (${remain}s)`;
-       }, 1000);
-   
-       // Scroll periodically to load more tweets
+         const elapsed = Date.now() - start,
+           r = Math.max(0, Math.ceil((durationMs - elapsed) / 1000));
+         if (elapsed < durationMs)
+           await updatePreloadTextMessage(
+             `Preloading tweets ${".".repeat(dots)} (${r}s left)`,
+             true
+           );
+       }, 7000);
        preloadScrollerId = setInterval(() => {
-         window.scrollTo(0, document.body.scrollHeight);
-       }, 2000);
-   
-       // Resolve the preload process after the specified duration
-       preloadTimeoutId = setTimeout(() => {
+         const c = window.scrollY;
+         window.scrollBy(0, window.innerHeight * 1.5);
+         if (
+           Math.abs(window.scrollY - c) < 100 &&
+           document.body.scrollHeight - (c + window.innerHeight) > 100
+         )
+           window.scrollTo(0, document.body.scrollHeight);
+       }, 1200);
+       preloadTimeoutId = setTimeout(async () => {
          clearInterval(preloadAnimId);
-         clearInterval(preloadCountdownId);
          clearInterval(preloadScrollerId);
          window.scrollTo(0, 0);
-         console.log("Preload finished");
+         await updatePreloadTextMessage("Preload finished.", false);
+         await wait(1000);
+         await updatePreloadTextMessage("", false);
+         await setPreloadTextContainerActive(false);
          resolve();
        }, durationMs);
      });
    }
-   
-   // Observer to detect new tweets in the main container
-   const mainContainer = document.querySelector('main[role="main"]');
-   if (mainContainer) {
-     observer = new MutationObserver((records) => {
-       if (!isRunning || isPaused) return; // Skip processing if not running or paused
-       unlikeNext(); // Process the next tweet
+   const mainTimelineSelector = 'div[aria-label*="Timeline"]';
+   let mainContainer = document.querySelector(mainTimelineSelector);
+   function setupObserver() {
+     if (observer) observer.disconnect();
+     mainContainer = document.querySelector(mainTimelineSelector);
+     if (!mainContainer) {
+       console.warn("[Setup] Timeline container not found. Retrying in 5s...");
+       setTimeout(setupObserver, 5000);
+       return;
+     }
+     observer = new MutationObserver(async (m) => {
+       if (!isRunning || isPaused || shouldStop || isProcessingTweet) return;
+       for (const mut of m)
+         if (
+           mut.type === "childList" &&
+           mut.addedNodes.length > 0 &&
+           Array.from(mut.addedNodes).some(
+             (n) =>
+               n.nodeType === 1 &&
+               (n.tagName === "ARTICLE" || n.querySelector("article"))
+           )
+         ) {
+           await unlikeNext();
+           break;
+         }
      });
-     observer.observe(mainContainer, { childList: true, subtree: true }); // Observe changes in the DOM
+     observer.observe(mainContainer, { childList: true, subtree: true });
    }
    
-   // Function to handle unliking the next tweet
    async function unlikeNext() {
-     if (shouldStop) return; // Exit if the script should stop
-   
-     // Find the next "unlike" button that hasn't been processed
-     const btns = Array.from(document.querySelectorAll('[data-testid="unlike"]'));
-     const btn = btns.find((b) => {
-       const id = extractTweetId(b);
-       return id && !processed.has(id);
-     });
-     if (!btn) return; // Exit if no button is found
-   
-     const tid = extractTweetId(btn); // Extract the tweet ID
-     btn.scrollIntoView({ block: "center" }); // Scroll to the button
-     await wait(200); // Wait for the scroll to complete
-     await rateLimiter.removeToken(); // Ensure rate limits are respected
-   
+     if (shouldStop || isProcessingTweet) return false;
+     isProcessingTweet = true;
      try {
-       const csrf = getCsrfToken(), // Retrieve CSRF token
-         auth = getAuthToken(); // Retrieve authorization token
-   
-       // Perform the unlike action via API or fallback to button click
-       if (tid && csrf && auth) {
-         const res = await fetch(
-           `https://api.twitter.com/1.1/favorites/destroy.json?id=${tid}`,
-           {
-             method: "POST",
-             credentials: "include",
-             headers: {
-               "x-csrf-token": csrf,
-               authorization: `Bearer ${auth}`,
-               "content-type": "application/json",
-             },
-           }
-         );
-         if (!res.ok) throw new Error(`HTTP ${res.status}`); // Handle HTTP errors
-   
-         // Calculate delay based on rate limit headers
-         const rem = +res.headers.get("x-rate-limit-remaining"),
-           reset = +res.headers.get("x-rate-limit-reset") * 1000,
-           now = Date.now(),
-           base =
-             rem > 0 ? Math.max((reset - now) / rem, 0) : config.RATE_LIMIT_WINDOW;
-         const delay = base * (0.8 + Math.random() * 0.4);
-         await wait(delay); // Wait for the calculated delay
-       } else {
-         btn.click(); // Fallback to clicking the button
+       const unlikeButtons = Array.from(
+         document.querySelectorAll('article [data-testid="unlike"]')
+       );
+       let btnToProcess = null,
+         tidToProcess = null;
+       for (const btn of unlikeButtons) {
+         const isButtonVisible = btn.offsetParent !== null;
+         const tid = extractTweetId(btn);
+         const alreadyProcessedInSet = tid ? processed.has(tid) : false;
+         const isMarkedByScript = btn.classList.contains("processed-by-script");
+         if (
+           !isButtonVisible ||
+           isMarkedByScript ||
+           (tid && alreadyProcessedInSet)
+         )
+           continue;
+         if (tid) {
+           btnToProcess = btn;
+           tidToProcess = tid;
+           break;
+         }
+       }
+       if (!btnToProcess) {
+         isProcessingTweet = false;
+         return false;
        }
    
-       processed.add(tid); // Mark the tweet as processed
-       console.log(`Unliked: "${fetchTweetText(btn).slice(0, 150)}"`); // Log the unliked tweet
-       console.log(`%cSession: ${++sessionCount}`, "color:darkseagreen;"); // Log session progress
-       totalCount++;
-       saveProgress(totalCount); // Save progress to local storage
-       statusText.textContent = `Session: ${sessionCount} | Total: ${totalCount}`; // Update status text
-       errorCount = 0; // Reset error count
-       await wait(waitTime); // Wait for the configured time
-       if (waitTime > 1000 && errorCount === 0) waitTime -= config.DECREMENT_WAIT; // Decrease wait time on success
-     } catch (e) {
-       console.error(e); // Log the error
-       errorText.textContent = `Error: ${e.message || e}`; // Display the error message
-       errorCount++; // Increment error count
-       waitTime += config.INCREMENT_WAIT; // Increase wait time on error
-       if (errorCount >= config.RETRY_COUNT) shouldStop = true; // Stop the script after exceeding retry count
+       processed.add(tidToProcess);
+       btnToProcess.style.transition = "opacity 0.3s ease";
+       btnToProcess.style.opacity = "0.3";
+       btnToProcess.classList.add("processed-by-script");
+       btnToProcess.scrollIntoView({ block: "center", behavior: "smooth" });
+       await wait(100 + Math.random() * 10);
+       await rateLimiter.removeToken();
+       const tweetTextForLog = fetchTweetText(btnToProcess).slice(0, 100);
+       try {
+         btnToProcess.click();
+         await wait(config.BASE_WAIT_TIME + Math.random() * 10);
+         sessionCount++;
+         totalCount++;
+         saveProgress(totalCount);
+         console.log(`Unliked: "${tweetTextForLog}..." (ID: ${tidToProcess})`);
+         if (
+           statusTextContainer.style.display === "none" ||
+           statusTextContainer.style.opacity === "0"
+         )
+           await setStatusTextContainerVisible(true);
+         if (uiSessionCountEl)
+           await updateCountValue(uiSessionCountEl, sessionCount);
+         if (uiTotalCountEl) await updateCountValue(uiTotalCountEl, totalCount);
+         await updateErrorText("");
+         errorCount = 0;
+         if (waitTime > config.BASE_WAIT_TIME)
+           waitTime = Math.max(
+             config.BASE_WAIT_TIME,
+             waitTime - config.DECREMENT_WAIT
+           );
+         btnToProcess.style.display = "none";
+         return true;
+       } catch (e) {
+         console.error(
+           `Error during click-based unlike for T${tidToProcess}:`,
+           e.message
+         );
+         await updateErrorText(`Click Error: ${e.message.substring(0, 60)}...`);
+         errorCount++;
+         waitTime = Math.min(waitTime + config.INCREMENT_WAIT, 3000);
+         if (processed.has(tidToProcess)) processed.delete(tidToProcess);
+         if (btnToProcess) {
+           btnToProcess.style.opacity = "1";
+           btnToProcess.classList.remove("processed-by-script");
+         }
+         return false;
+       }
+     } finally {
+       isProcessingTweet = false;
      }
+   }
+   
+   async function findAndProcessFirstTweetSlowly(maxScrollAttempts = 30) {
+     // Max attempts increased
+     await setStatusTextContainerVisible(false);
+     await setPreloadTextContainerActive(true);
+     await updatePreloadTextMessage("Searching for first tweet...", true); // Static message
+     for (let attempt = 0; attempt < maxScrollAttempts; attempt++) {
+       if (shouldStop) {
+         await updatePreloadTextMessage("Search stopped.", false);
+         await wait(1000);
+         await setPreloadTextContainerActive(false);
+         return false;
+       }
+       const processedThisAttempt = await unlikeNext();
+       if (processedThisAttempt) {
+         await updatePreloadTextMessage("First tweet processed!", false);
+         await wait(1000);
+         await setPreloadTextContainerActive(false);
+         return true;
+       }
+       if (attempt < maxScrollAttempts - 1) {
+         window.scrollBy(0, Math.max(250, window.innerHeight / 2.5));
+         await wait(config.BASE_WAIT_TIME + 250 + Math.random() * 150);
+       }
+     }
+     console.error(
+       "[InitialSearch] CRITICAL: Failed to find/process any tweet after max slow scroll attempts. Halting."
+     );
+     await updatePreloadTextMessage(
+       "ERROR: Could not find initial tweet. Halting. Try scrolling manually first.",
+       false
+     );
+     return false;
+   }
+   
+   async function unlikeAll() {
+     updateButtonStates();
+     let consecutiveNoTweetFound = 0,
+       emptyScrollCount = 0;
+     const MAX_CONSECUTIVE_NO_TWEET_BEFORE_SCROLL = 4;
+     const MAX_EMPTY_SCROLLS = 3;
+     while (!shouldStop && sessionCount < config.MAX_UNLIKES) {
+       while (isPaused && !shouldStop) await wait(200);
+       if (shouldStop) break;
+       const processedSuccessfully = await unlikeNext();
+       if (processedSuccessfully) {
+         consecutiveNoTweetFound = 0;
+         emptyScrollCount = 0;
+         await wait(waitTime);
+       } else {
+         consecutiveNoTweetFound++;
+         if (consecutiveNoTweetFound >= MAX_CONSECUTIVE_NO_TWEET_BEFORE_SCROLL) {
+           await setStatusTextContainerVisible(false);
+           await setPreloadTextContainerActive(true);
+           await updatePreloadTextMessage("Scrolling for more tweets...", true);
+           const scrollHeightBefore = document.body.scrollHeight;
+           window.scrollTo(0, document.body.scrollHeight);
+           await wait(200 + Math.random() * 400);
+           window.scrollBy(0, -200);
+           await wait(200 + Math.random() * 400);
+           window.scrollTo(0, document.body.scrollHeight);
+           await wait(200 + Math.random() * 400);
+           await updatePreloadTextMessage("", false);
+           await setPreloadTextContainerActive(false);
+           await setStatusTextContainerVisible(true);
+           consecutiveNoTweetFound = 0;
+           if (document.body.scrollHeight <= scrollHeightBefore + 150) {
+             emptyScrollCount++;
+             console.warn(
+               `[unlikeAll] Scroll didn't load new content. Attempt: ${emptyScrollCount}`
+             );
+             if (emptyScrollCount >= MAX_EMPTY_SCROLLS) {
+               console.error("[unlikeAll] Max empty scrolls. Stopping.");
+               shouldStop = true;
+               setupStatusDisplay("totalOnly");
+               if (uiTotalCountEl)
+                 await updateCountValue(uiTotalCountEl, totalCount);
+               const s = statusText.querySelectorAll(".status-suffix-message");
+               s.forEach((x) => x.remove());
+               const eS = document.createElement("span");
+               eS.className = "status-suffix-message";
+               eS.textContent = " Reached end or error. Stopping.";
+               statusText.appendChild(eS);
+               await setStatusTextContainerVisible(true);
+             }
+           } else emptyScrollCount = 0;
+         } else await wait(350 + Math.random() * 300);
+       }
+     }
+     isRunning = false;
+     isPaused = false;
+     updateButtonStates();
+     setupStatusDisplay("totalOnly");
+     if (uiTotalCountEl) await updateCountValue(uiTotalCountEl, totalCount);
+     let finalMsg = "";
+     if (
+       shouldStop &&
+       !statusText.textContent.includes("Reached end or error. Stopping.") &&
+       !preloadText.textContent.includes("ERROR:")
+     )
+       finalMsg = " Process stopped.";
+     else if (!shouldStop) finalMsg = " Max unlikes reached or finished.";
+     if (finalMsg) {
+       const s = statusText.querySelectorAll(".status-suffix-message");
+       s.forEach((x) => x.remove());
+       const S = document.createElement("span");
+       S.className = "status-suffix-message";
+       S.textContent = finalMsg;
+       statusText.appendChild(S);
+     }
+     await setStatusTextContainerVisible(true);
+     if (!preloadText.textContent.includes("ERROR:")) {
+       await updatePreloadTextMessage("", false);
+       await setPreloadTextContainerActive(false);
+     }
+   }
+   
+   async function animateStatusUpdate(
+     label,
+     duration,
+     callback,
+     clearPreloadAfter = false,
+     finalPreloadMessage = ""
+   ) {
+     clearInterval(statusAnimIntervalId);
+     let dots = 0;
+     await setStatusTextContainerVisible(false);
+     await setPreloadTextContainerActive(true);
+     const u = async () => {
+       dots = (dots % 3) + 1;
+       await updatePreloadTextMessage(`${label} ${".".repeat(dots)}`, true);
+     };
+     await u();
+     statusAnimIntervalId = setInterval(u, 700);
+     await wait(duration);
+     clearInterval(statusAnimIntervalId);
+     if (finalPreloadMessage) {
+       await updatePreloadTextMessage(finalPreloadMessage, false);
+       if (clearPreloadAfter) {
+         await wait(1000);
+         await updatePreloadTextMessage("", false);
+         await setPreloadTextContainerActive(false);
+       }
+     } else if (clearPreloadAfter) {
+       await updatePreloadTextMessage("", false);
+       await setPreloadTextContainerActive(false);
+     }
+     if (callback) await callback();
    }
    
    startBtn.addEventListener("click", async () => {
+     console.clear();
+     console.log(
+   `
+        RapidUnlike
+          v1.0.0
+   https://github.com/ajwdd           
+   `
+     );
+     if (isRunning) return;
      shouldStop = false;
-     // Reset session and processed tweets to start from top
+     isPaused = false;
+     isRunning = true;
+     errorCount = 0;
+     waitTime = config.BASE_WAIT_TIME;
      processed.clear();
      sessionCount = 0;
-     // Hide controls
-     [startBtn, stopBtn, pauseBtn, resumeBtn].forEach(
-       (b) => (b.style.display = "none")
-     );
-     // Preload tweets for 10s
-     await preloadTweets(10000);
-     // Ensure scroll top and allow time for content to settle
+     [startBtn, pauseBtn, resumeBtn].forEach((b) => (b.style.display = "none"));
+     await setStatusTextContainerVisible(false);
+     await updateErrorText("");
+     await setPreloadTextContainerActive(false);
+     const sS = statusText.querySelectorAll(".status-suffix-message");
+     sS.forEach((s) => s.remove());
+   
+     await preloadTweets(7000);
      window.scrollTo(0, 0);
-     await wait(5000);
-     // Restore controls
-     [startBtn, stopBtn, pauseBtn, resumeBtn].forEach(
-       (b) => (b.style.display = "")
-     );
-     updateButtonStates();
-     preloadText.textContent = "";
+     await wait(500);
    
-     isRunning = true;
-     isPaused = false;
-     unlikeAll();
-   });
+     const firstTweetFound = await findAndProcessFirstTweetSlowly();
    
-   // Button logic
-   stopBtn.addEventListener("click", () => {
-     // Ensure pausing state is reset so start unghosts
-     isPaused = false;
-     shouldStop = true;
-     isRunning = false;
-     clearInterval(preloadAnimId);
-     clearInterval(preloadCountdownId);
-     clearInterval(preloadScrollerId);
-     clearTimeout(preloadTimeoutId);
-     clearInterval(statusAnimId);
-     [startBtn, stopBtn, pauseBtn, resumeBtn].forEach(
-       (b) => (b.style.display = "none")
-     );
-     statusText.style.display = "none";
-     animateStatus("Stopping", 3000);
-   });
-   
-   pauseBtn.addEventListener("click", () => {
-     isPaused = true;
-     clearInterval(statusAnimId);
-     [startBtn, stopBtn, pauseBtn, resumeBtn].forEach(
-       (b) => (b.style.display = "none")
-     );
-     statusText.style.display = "none";
-     animateStatus("Pausing", 3000);
-   });
-   
-   resumeBtn.addEventListener("click", () => {
-     isPaused = false;
-     clearInterval(statusAnimId);
-     [startBtn, stopBtn, pauseBtn, resumeBtn].forEach(
-       (b) => (b.style.display = "none")
-     );
-     statusText.style.display = "none";
-     animateStatus("Resuming", 3000);
-   });
-   
-   // Animation helper
-   function animateStatus(label, duration) {
-     let dots = 0;
-     statusAnimId = setInterval(() => {
-       dots = (dots % 3) + 1;
-       preloadText.textContent = `${label} ${".".repeat(dots)}`;
-     }, 1000);
-     setTimeout(() => {
-       clearInterval(statusAnimId);
-       preloadText.textContent = "";
-       [startBtn, stopBtn, pauseBtn, resumeBtn].forEach(
-         (b) => (b.style.display = "")
+     if (firstTweetFound) {
+       setupStatusDisplay("sessionAndTotal");
+       if (uiSessionCountEl)
+         await updateCountValue(uiSessionCountEl, sessionCount);
+       if (uiTotalCountEl) await updateCountValue(uiTotalCountEl, totalCount);
+       await setStatusTextContainerVisible(true);
+       [startBtn, pauseBtn, resumeBtn].forEach(
+         (b) => (b.style.display = "inline-flex")
        );
-       statusText.style.display = "";
        updateButtonStates();
-     }, duration);
-   }
-   
-   // Main unlike function
-   async function unlikeAll() {
-     updateButtonStates(); // Update button states before starting
-     while (!shouldStop && sessionCount < config.MAX_UNLIKES) {
-       while (isPaused) await wait(500); // Wait if the script is paused
-       await unlikeNext(); // Attempt to unlike the next tweet
-       if (!document.querySelector('[data-testid="unlike"]')) {
-         window.scrollTo(0, document.body.scrollHeight); // Scroll to load more tweets
-         await wait(2000); // Wait for tweets to load
-       }
+       setupObserver();
+       unlikeAll();
+     } else {
+       console.error(
+         "[StartBtn] Failed to find the first tweet using slow scroll. Unliking process halted."
+       );
+       isRunning = false;
+       isPaused = false;
+       shouldStop = true;
+       updateButtonStates();
      }
-     console.log(`Finished: session=${sessionCount}, total=${totalCount}`); // Log completion
-     isRunning = false; // Reset running state
-     isPaused = false; // Reset paused state
-     sessionCount = 0; // Reset session count
-     updateButtonStates(); // Update button states after completion
-   }
+   });
+   pauseBtn.addEventListener("click", async () => {
+     if (!isRunning || isPaused) return;
+     isPaused = true;
+     await updateErrorText("");
+     await animateStatusUpdate(
+       "Pausing",
+       1500,
+       async () => {
+         updateButtonStates();
+         [startBtn, pauseBtn, resumeBtn].forEach(
+           (b) => (b.style.display = "inline-flex")
+         );
+       },
+       false,
+       `Paused. Session: ${sessionCount}`
+     );
+   });
+   resumeBtn.addEventListener("click", async () => {
+     if (!isRunning || !isPaused) return;
+     isPaused = false;
+     await updateErrorText("");
+     await animateStatusUpdate(
+       "Resuming",
+       1500,
+       async () => {
+         updateButtonStates();
+         [startBtn, pauseBtn, resumeBtn].forEach(
+           (b) => (b.style.display = "inline-flex")
+         );
+         setupStatusDisplay("sessionAndTotal");
+         if (uiSessionCountEl)
+           await updateCountValue(uiSessionCountEl, sessionCount);
+         if (uiTotalCountEl) await updateCountValue(uiTotalCountEl, totalCount);
+         await setStatusTextContainerVisible(true);
+       },
+       true
+     );
+   });
+   
+   setupStatusDisplay("totalOnly");
+   updateButtonStates();
+   (async () => {
+     if (!mainContainer) {
+       await setStatusTextContainerVisible(false);
+       await setPreloadTextContainerActive(true);
+       await updatePreloadTextMessage(
+         "Timeline not found. Scroll or go to Likes page.",
+         false
+       );
+       setTimeout(async () => {
+         if (preloadText.textContent.includes("Timeline not found")) {
+           await updatePreloadTextMessage("", false);
+           await setPreloadTextContainerActive(false);
+           if (statusText.textContent.trim())
+             await setStatusTextContainerVisible(true);
+         }
+       }, 7000);
+     }
+     if (
+       statusText.textContent.trim() &&
+       statusTextContainer &&
+       statusTextContainer.style.display !== "none"
+     )
+       await setStatusTextContainerVisible(true);
+     else if (!statusText.textContent.trim())
+       await setStatusTextContainerVisible(false);
+   })();
    ```
 
    **C'est fini!**
-
----
-
-**Note:** If you have a slow internet connection, adjust the configuration accordingly.
+   
