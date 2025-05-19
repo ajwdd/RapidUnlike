@@ -2,6 +2,8 @@
 
 [![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=flat&logo=javascript)](https://en.wikipedia.org/wiki/Brendan_Eich) [![Stars](https://img.shields.io/github/stars/ajwdd/RapidUnlike.svg?style=flat)](https://github.com/ajwdd/RapidUnlike/stargazers) [![Size](https://img.shields.io/github/repo-size/ajwdd/RapidUnlike)](https://github.com/ajwdd/RapidUnlike) [![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](https://unlicense.org) [![IsMaintained](https://img.shields.io/badge/Maintained%3F-yes-blue.svg)](https://github.com/ajwdd/RapidUnlike/activity)
 
+Check out my new project for deleting Tweet, with many options!
+https://github.com/ajwdd/XDeleter
 
 ⚠️ Due to recent changes on X, the newest version of the script has gone from "rapid" to cautious. This is to avoid temporary labels that **limit reach** for weeks and shadow bans. All presets wait times are **100%** safe to use, change them at your own risk. ⚠️
 
